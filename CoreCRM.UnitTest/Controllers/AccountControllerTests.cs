@@ -1,4 +1,10 @@
+using Moq;
 using Xunit;
+using Microsoft.AspNetCore.Identity;
+using CoreCRM.Models;
+using System.Threading.Tasks;
+using CoreCRM.Controllers;
+using CoreCRM.ViewModels.AccountViewModels;
 
 namespace CoreCRM.UnitTest.Controllers
 {
@@ -7,21 +13,21 @@ namespace CoreCRM.UnitTest.Controllers
     public class AccountControllerTests
     {
         [Fact]
-        public void Login_WhenFindByNameFailed_FindByEmailCalled()
+        public async Task Login_WhenFindByNameFailed_FindByEmailCalled()
         {
             // Arrange
-            var mockRepo = new Mock<UserManager>();
-            mockRepo.Setup(repo => repo.ListAsync()).Returns(Task.FromResult(GetTestSessions()));
-            var controller = new HomeController(mockRepo.Object);
+            var mockRepo = new Mock<UserManager<ApplicationUser>>();
+            mockRepo.Setup(repo => repo.FindByNameAsync(It.IsAny<string>())).Returns(Task.FromResult((ApplicationUser)null));
+            var controller = new AccountController(mockRepo.Object, null, null, null, null);
+            var model = new LoginViewModel();
+
+            // Verify
+            mockRepo.Verify(repo => repo.FindByEmailAsync(It.IsAny<string>()));
 
             // Act
-            var result = await controller.Index();
+            var result = await controller.Login(model);
 
             // Assert
-            var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<IEnumerable<StormSessionViewModel>>(
-                viewResult.ViewData.Model);
-            Assert.Equal(2, model.Count());
         }
     }
 }
