@@ -1,0 +1,129 @@
+﻿@inject SignInManager<ApplicationUser> SignManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignManager.IsSignedIn(User)) {
+    <ul class="nav navbar-nav">
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">客户管理 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a asp-controller="Clue" asp-action="Index" role="menuitem" tabindex="-1">线索</a></li>
+                <li role="presentation"><a asp-controller="Clue" asp-action="Pool" role="menuitem" tabindex="-1">线索池</a></li>
+                <li role="presentation"><a asp-controller="Clue" asp-action="Stat" role="menuitem" tabindex="-1">线索统计</a></li>
+                <li class="divider"></li>
+                <li role="presentation"><a asp-controller="Customer" asp-action="Index" role="menuitem" tabindex="-1">客户</a></li>
+                <li role="presentation"><a asp-controller="Customer" asp-action="Pool" role="menuitem" tabindex="-1">客户池</a></li>
+                <li role="presentation"><a asp-controller="Customer" asp-action="Care" role="menuitem" tabindex="-1">客户关怀</a></li>
+                <li role="presentation"><a asp-controller="Customer" asp-action="Contact" role="menuitem" tabindex="-1">客户联系人</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">销售机会 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">商机视图</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">报价单</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">销售合同</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">进销存 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">产品</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">采购单</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">销售退货单</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">库存名细</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">出入库单</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">仓库管理</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">供应商管理</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">应收款</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">应付款</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">收款单</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">付款单</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">办公 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">任务</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">知识</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">工单</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">审批</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">工作日志</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">跟进记录</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">日程安排</a></li>
+                <li class="divider"></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">公告管理</a></li>
+                <li role="presentation"><a asp-controller="Orgnization" asp-action="Structure" role="menuitem" tabindex="-1">组织架构</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">统计分析 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">业务管理</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">线索统计</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">客户统计</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">财务统计</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">商机统计</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">产品销售统计</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">审批统计</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">营销 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">发送短信</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">短信发件箱</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">发送邮件</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">系统设置 <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">系统基本设置</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">SMTP设置</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">短信设置</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">自定义字段设置</a></li>
+                <li role="presentation"><a href="#" role="menuitem" tabindex="-1">操作日志</a></li>
+            </ul>
+        </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><i class="fa fa-envelope-o"></i>&nbsp;0</a></li>
+        <li><a href="#"><i class="fa fa-tasks"></i>&nbsp;0</a></li>
+        <li><a href="#"><i class="fa fa-calendar"></i>&nbsp;0</a></li>
+        <li><a href="#"><i class="fa fa-star-o"></i>&nbsp;0</a></li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-plus"></i> <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">站内信</a></li>
+                <li class="divider"></li>
+                <li><a href="#">选框设置</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">@UserManager.GetUserName(User) <div class="avatar-container">&nbsp;</div></a>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">个人资料</a></li>
+                <li><a href="#">动态信息</a></li>
+                <li><a href="#">站内信</a></li>
+                <li class="divider"></li>
+                <li><a href="#">帮助</a></li>
+                <li><a asp-controller="Account" asp-action="LogOff">退出</a></li>
+            </ul>
+        </li>
+    </ul>
+}
+else {
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">官方网站</a></li>
+        <li><a href="#">使用帮助</a></li>
+        <li><a href="#">技术支持</a></li>
+        <li><a href="#">联系我们</a></li>
+    </ul>
+}

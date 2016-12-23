@@ -15,7 +15,9 @@ namespace CoreCRM.Data
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+		//public DbSet<ApplicationUser> Users;
+
+		protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
             // Customize the ASP.NET Identity model and override the defaults if needed.

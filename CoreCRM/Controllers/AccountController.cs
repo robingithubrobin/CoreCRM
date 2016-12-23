@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using CoreCRM.Models;
+using CoreCRM.ViewModels.AccountViewModels;
 using CoreCRM.Models.AccountViewModels;
 using CoreCRM.Services;
 
@@ -57,9 +58,19 @@ namespace CoreCRM.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+				var user = await _userManager.FindByNameAsync(model.Account);
+                if (user == null) {
+					user = await _userManager.FindByEmailAsync(model.Account);
+				}
+                if (user == null) {
+                    ModelState.AddModelError(string.Empty, "用户不存在");
+                    return View(model);
+                }
+
+				// This doesn't count login failures towards account lockout
+				// To enable password failures to trigger account lockout, set lockoutOnFailure: true
+				//var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+				var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
@@ -89,7 +100,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/Register
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register(string returnUrl = null)
+        private IActionResult Register(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -100,7 +111,7 @@ namespace CoreCRM.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        private async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
@@ -130,7 +141,7 @@ namespace CoreCRM.Controllers
         // POST: /Account/LogOff
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LogOff()
+        private async Task<IActionResult> LogOff()
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation(4, "User logged out.");
@@ -142,7 +153,7 @@ namespace CoreCRM.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        private IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
             // Request a redirect to the external login provider.
             var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
@@ -154,7 +165,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/ExternalLoginCallback
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        private async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
         {
             if (remoteError != null)
             {
@@ -197,7 +208,7 @@ namespace CoreCRM.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl = null)
+        private async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl = null)
         {
             if (ModelState.IsValid)
             {
@@ -229,7 +240,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/ConfirmEmail
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        private async Task<IActionResult> ConfirmEmail(string userId, string code)
         {
             if (userId == null || code == null)
             {
@@ -248,7 +259,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/ForgotPassword
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult ForgotPassword()
+        private IActionResult ForgotPassword()
         {
             return View();
         }
@@ -258,7 +269,7 @@ namespace CoreCRM.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        private async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -286,7 +297,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/ForgotPasswordConfirmation
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult ForgotPasswordConfirmation()
+        private IActionResult ForgotPasswordConfirmation()
         {
             return View();
         }
@@ -295,7 +306,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/ResetPassword
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult ResetPassword(string code = null)
+        private IActionResult ResetPassword(string code = null)
         {
             return code == null ? View("Error") : View();
         }
@@ -305,7 +316,7 @@ namespace CoreCRM.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        private async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -330,7 +341,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/ResetPasswordConfirmation
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult ResetPasswordConfirmation()
+        private IActionResult ResetPasswordConfirmation()
         {
             return View();
         }
@@ -339,7 +350,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/SendCode
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult> SendCode(string returnUrl = null, bool rememberMe = false)
+        private async Task<ActionResult> SendCode(string returnUrl = null, bool rememberMe = false)
         {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user == null)
@@ -356,7 +367,7 @@ namespace CoreCRM.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendCode(SendCodeViewModel model)
+        private async Task<IActionResult> SendCode(SendCodeViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -393,7 +404,7 @@ namespace CoreCRM.Controllers
         // GET: /Account/VerifyCode
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyCode(string provider, bool rememberMe, string returnUrl = null)
+        private async Task<IActionResult> VerifyCode(string provider, bool rememberMe, string returnUrl = null)
         {
             // Require that the user has already logged in via username/password or external login
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
@@ -409,7 +420,7 @@ namespace CoreCRM.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> VerifyCode(VerifyCodeViewModel model)
+        private async Task<IActionResult> VerifyCode(VerifyCodeViewModel model)
         {
             if (!ModelState.IsValid)
             {

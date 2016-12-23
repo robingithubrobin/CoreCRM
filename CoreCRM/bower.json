@@ -7,6 +7,7 @@
     "jquery-validation": "1.15.0",
     "jquery-validation-unobtrusive": "3.2.6",
     "font-awesome": "^4.7.0",
-    "vue": "^2.1.6"
+    "vue": "^2.1.6",
+    "highcharts": "^5.0.6"
   }
 }
