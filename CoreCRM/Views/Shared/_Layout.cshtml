@@ -31,7 +31,10 @@
             </div>
         </div>
     </div>
-    @RenderBody()
+    <div class="@ViewData["Container"]">
+        @RenderBody()
+        @await Html.PartialAsync("_FooterPartial")
+    </div>
 
     @await Html.PartialAsync("_ScriptsPartial")
     @RenderSection("scripts", required: false)
