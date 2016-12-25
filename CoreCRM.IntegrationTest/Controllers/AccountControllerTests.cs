@@ -1,11 +1,13 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using Xunit;
 
 namespace CoreCRM.IntegrationTest.Controllers
 {
     // see example explanation on xUnit.net website:
     // https://xunit.github.io/docs/getting-started-dotnet-core.html
-    public class AccountControllerTests : IClassFixture<TestFixture<TestStartup>>
+    public class AccountControllerTests : IClassFixture<IClassFixture<TestStarting>>
     {
         private readonly HttpClient _client;
         public AccountControllerTests(TestFixture<TestStartup> fixture)
@@ -14,21 +16,21 @@ namespace CoreCRM.IntegrationTest.Controllers
         }
 
         [Fact]
-        public async Task Login_WhenFindByNameFailed_FindByEmailCalled()
+        public async void Login_WithEmail_RedirectToUri()
         {
             // Arrange
-            var mockRepo = new Mock<UserManager<ApplicationUser>>();
-            mockRepo.Setup(repo => repo.FindByNameAsync(It.IsAny<string>())).Returns(Task.FromResult((ApplicationUser)null));
-            var controller = new AccountController(mockRepo.Object, null, null, null, null);
-            var model = new LoginViewModel();
-
-            // Verify
-            mockRepo.Verify(repo => repo.FindByEmailAsync(It.IsAny<string>()));
+            var dict = new Dictionary<string, string>();
+            dict.Add("Account", "admin@163.com");
+            dict.Add("Password", "123456");
+            dict.Add("RememberMe", "1");
+            var content = new FormUrlEncodedContent(dict);
 
             // Act
-            var result = await controller.Login(model);
+            var response = await _client.PostAsync("/Account/Login?redirecturl=/", content);
 
             // Assert
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.Equal("/", response.Headers.Location.ToString());
         }
     }
 }

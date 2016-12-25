@@ -28,7 +28,7 @@ namespace CoreCRM
             if (env.IsDevelopment())
             {
                 // For more details on using the user secret store see https://go.microsoft.com/fwlink/?LinkID=532709
-                builder.AddUserSecrets();
+                //builder.AddUserSecrets();
             }
 
             builder.AddEnvironmentVariables();
@@ -41,8 +41,7 @@ namespace CoreCRM
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            ConfigureDbContext(services);
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -53,6 +52,12 @@ namespace CoreCRM
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+        }
+
+        protected virtual void ConfigureDbContext(IServiceCollection services)
+        {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -88,7 +93,23 @@ namespace CoreCRM
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            Task.Run(() => SeedData.Initialize(app.ApplicationServices, userManager, roleManager));
+            using (var serviceScope = app.ApplicationServices
+                                         .GetRequiredService<IServiceScopeFactory>()
+                                         .CreateScope()) {
+
+                var dbContext = serviceScope.ServiceProvider
+                                            .GetService<ApplicationDbContext>();
+
+                EnsureDatabaseCreated(dbContext);
+            }
+
+            //Task.Run(() => SeedData.Initialize(app.ApplicationServices, userManager, roleManager));
+        }
+
+        protected virtual void EnsureDatabaseCreated(ApplicationDbContext dbContext)
+        {
+            // run Migrations
+            dbContext.Database.Migrate();
         }
     }
 }

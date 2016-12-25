@@ -1,77 +1,38 @@
 ﻿using CoreCRM.Data;
-using CoreCRM.Models;
-using CoreCRM.Services;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace CoreCRM.IntegrationTest
 {
-    public class TestStartup
+    public class TestStartup : Startup
     {
-        public TestStartup(IHostingEnvironment env)
+        public TestStartup(IHostingEnvironment env) : base(env)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-            // For more details on using the user secret store see https://go.microsoft.com/fwlink/?LinkID=532709
-            builder.AddUserSecrets();
-
-            builder.AddEnvironmentVariables();
-            Configuration = builder.Build();
         }
 
-        public IConfigurationRoot Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        protected override void ConfigureDbContext(IServiceCollection services)
         {
-            // Add framework services.
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
+            var connectionString = connectionStringBuilder.ToString();
+            var connection = new SqliteConnection(connectionString);
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
-            services.AddMvc();
-
-            // Add application services.
-            services.AddTransient<IEmailSender, AuthMessageSender>();
-            services.AddTransient<ISmsSender, AuthMessageSender>();
+            services
+              .AddEntityFrameworkSqlite()
+              .AddDbContext<ApplicationDbContext>(
+                options => options.UseSqlite(connection)
+              );
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        // method in TestStartup.cs
+        protected override void EnsureDatabaseCreated(ApplicationDbContext dbContext)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            dbContext.Database.OpenConnection(); // see Resource #2 link why we do this
+            //dbContext.Database.EnsureCreated();
 
-            app.UseDeveloperExceptionPage();
-            app.UseDatabaseErrorPage();
-            app.UseBrowserLink();
-
-            app.UseStaticFiles();
-
-            app.UseIdentity();
-
-            // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
-
-            app.UseMvc(routes => {
-                routes.MapRoute(name: "areasRoute",
-                    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            // now run the real thing
+            base.EnsureDatabaseCreated(dbContext);
         }
-
     }
 }

@@ -9,7 +9,9 @@ namespace CoreCRM.IntegrationTest
     {
         public TestFixture()
         {
-            var builder = new WebHostBuilder().UseStartup<TStartup>();
+            var builder = new WebHostBuilder()
+                .UseEnvironment("Development")
+                .UseStartup<TStartup>();
             Server = new TestServer(builder);
 
             Client = Server.CreateClient();

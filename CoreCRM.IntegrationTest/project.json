@@ -9,7 +9,8 @@
         "CoreCRM": {
             "version": "1.0.0-*",
             "target": "project"
-        }
+        },
+        "Microsoft.DotNet.InternalAbstractions": "1.0.0"
     },
     "testRunner": "xunit",
     "frameworks": {
