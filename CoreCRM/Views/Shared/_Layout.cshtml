@@ -1,5 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
+<!--[if lt IE 10]><html class="old-id"><![endif]-->
+<!--[if gte IE 10]>-->
 <html>
+<!--<![endif]-->
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,8 +11,11 @@
     @await Html.PartialAsync("_StylesPartial")
 </head>
 <body>
+    <div class="old-browser-warning">
+        <h1>您的浏览器版本太低，请使用 IE10 以上版本的浏览器，或者使用 Chrome，Firefox 等浏览器。</h1>
+    </div>
     <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
+        <div class="container" class="body-content">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -20,18 +26,11 @@
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">CoreCRM</a>
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                </ul>
-                <div class="navbar-collapse collapse">
-                    @await Component.InvokeAsync("NavigationBar")
-                </div>
+                @await Component.InvokeAsync("NavigationBar")
             </div>
         </div>
     </div>
-    <div class="@ViewData["Container"]">
+    <div class="@ViewData["ContainerClass"]">
         @RenderBody()
         @await Html.PartialAsync("_FooterPartial")
     </div>

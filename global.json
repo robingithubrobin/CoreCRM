@@ -1,5 +1,5 @@
 ﻿{
-  "projects": [ "CoreCRM", "CoreCRM.UnitTest" ],
+  "projects": [ "CoreCRM", "CoreCRM.UnitTest", "CoreCRM.IntegrationTest" ],
   "sdk": {
     "version": "1.0.0-preview2-003131"
   }

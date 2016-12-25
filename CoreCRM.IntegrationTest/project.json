@@ -1,0 +1,34 @@
+{
+    "version": "1.0.0-*",
+
+    "dependencies": {
+        "Microsoft.NETCore.App": "1.1.0",
+        "dotnet-test-xunit": "1.0.0-rc2-*",
+        "xunit": "2.1.0",
+        "Microsoft.AspNetCore.TestHost": "1.1.0",
+        "CoreCRM": {
+            "version": "1.0.0-*",
+            "target": "project"
+        }
+    },
+    "testRunner": "xunit",
+    "frameworks": {
+        "netcoreapp1.1": {
+            "imports": [
+                "dnxcore50",
+                "portable-net451+win8"
+            ]
+        }
+    },
+    "runtimes": {
+        "win10-x64": {}
+    },
+    "buildOptions": {
+        "copyToOutput": {
+            "include": [ "xunit.runner.json" ]
+        }
+    },
+    "tooling": {
+        "defaultNamespace": "CoreCRM.IntegrationTest"
+    }
+}

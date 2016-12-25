@@ -1,6 +1,9 @@
 body {
-    padding-top: 50px;
-    padding-bottom: 20px;
+    padding-top: 60px;
+    padding-bottom: 40px;
+    background-color: #efefef;
+    font-family: "Microsoft YaHei";
+    font-size: 12px;
 }
 
 /* Wrapping element */
@@ -8,6 +11,33 @@ body {
 .body-content {
     padding-left: 15px;
     padding-right: 15px;
+    background-color: white;
+}
+
+/* Old browser warning */
+.old-browser-warning {
+    display: none;
+}
+
+.old-ie div {
+    display: none;
+}
+
+.old-ie .old-browser-warning {
+    display: block;
+}
+
+.old-browser-warning h1 {
+    text-align: center;
+}
+
+.nav .avatar-container {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background-color: red;
+    vertical-align: middle;
+    margin-left: 5px;
 }
 
 /* Set widths on the form inputs since otherwise they're 100% wide */

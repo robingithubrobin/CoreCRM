@@ -12,6 +12,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CoreCRM", "CoreCRM\CoreCRM.
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CoreCRM.UnitTest", "CoreCRM.UnitTest\CoreCRM.UnitTest.xproj", "{298FFA98-2CBB-4AFF-8BF3-5B2515843E80}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CoreCRM.IntegrationTest", "CoreCRM.IntegrationTest\CoreCRM.IntegrationTest.xproj", "{7408C970-8A83-427B-B53D-D00244B9456D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{298FFA98-2CBB-4AFF-8BF3-5B2515843E80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{298FFA98-2CBB-4AFF-8BF3-5B2515843E80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{298FFA98-2CBB-4AFF-8BF3-5B2515843E80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7408C970-8A83-427B-B53D-D00244B9456D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7408C970-8A83-427B-B53D-D00244B9456D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7408C970-8A83-427B-B53D-D00244B9456D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7408C970-8A83-427B-B53D-D00244B9456D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
