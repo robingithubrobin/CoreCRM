@@ -1,35 +1,98 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
+using System.Threading.Tasks;
 using Xunit;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using CoreCRM.Data;
+using CoreCRM.Models;
 
 namespace CoreCRM.IntegrationTest.Controllers
 {
+    // ===================================================
+    // ALWAYS REMEMBER THE DATABASE IS SHARED CROSS TESTS.
+    // ===================================================
+
+    public class AccountControllerTestStartup : TestStartup
+    {
+        public AccountControllerTestStartup(IHostingEnvironment env) : base(env)
+        {
+
+        }
+
+        protected override void DatabaseFactory(IApplicationBuilder app, ApplicationDbContext dbContext)
+        {
+            using (var serviceScope = app.ApplicationServices
+                                         .GetRequiredService<IServiceScopeFactory>()
+                                         .CreateScope()) {
+
+                var userManager = serviceScope.ServiceProvider
+                                              .GetService<UserManager<ApplicationUser>>();
+                var roleManager = serviceScope.ServiceProvider
+                                              .GetService<RoleManager<IdentityRole>>();
+
+				var user = new ApplicationUser()
+				{
+                    UserName = "admin",
+                    Email= "admin@example.com",
+				};
+
+				Task.Run(async () => {
+					await roleManager.CreateAsync(new IdentityRole("Admin"));
+					await roleManager.CreateAsync(new IdentityRole("Employee"));
+				    await userManager.CreateAsync(user, "123abC_");                    
+                    await userManager.AddToRoleAsync(user, "Admin");
+				}).Wait();
+			}
+        }
+    }
+
     // see example explanation on xUnit.net website:
     // https://xunit.github.io/docs/getting-started-dotnet-core.html
-    public class AccountControllerTests : IClassFixture<IClassFixture<TestStarting>>
+    public class AccountControllerTests : AbstractIntegrationTest<AccountControllerTestStartup>
     {
-        private readonly HttpClient _client;
-        public AccountControllerTests(TestFixture<TestStartup> fixture)
+		public AccountControllerTests(TestFixture<AccountControllerTestStartup> fixture) : base(fixture)
         {
-            _client = fixture.Client;
+
+		}
+
+        public override void Dispose()
+        {
+
         }
 
         [Fact]
-        public async void Login_WithEmail_RedirectToUri()
+        public async void Login_WithUserName_RedirectToUri()
         {
             // Arrange
-            var dict = new Dictionary<string, string>();
-            dict.Add("Account", "admin@163.com");
-            dict.Add("Password", "123456");
-            dict.Add("RememberMe", "1");
-            var content = new FormUrlEncodedContent(dict);
+            // Fetch AntiForgeryToken
+            var response = await _client.GetAsync("/Account/Login");
+            response.EnsureSuccessStatusCode();
+
+            // Extract token
+            string antiForgeryToken = await ExtractAntiForgeryToken(response);
+
+            // Fill form
+            var formPostBodyData = new Dictionary<string, string>
+            {
+                {"__RequestVerificationToken", antiForgeryToken}, // Add token
+                {"Account", "admin"},
+                {"Password", "123abC_"},
+                {"RememberMe", "true"}
+            };
+            var requestMessage = CreateWithCookiesFromResponse("/Account/Login?returnUrl=%2F", formPostBodyData, response);
 
             // Act
-            var response = await _client.PostAsync("/Account/Login?redirecturl=/", content);
+            response = await _client.SendAsync(requestMessage);
 
-            // Assert
-            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+			var content = await response.Content.ReadAsStringAsync();
+
+			// Assert
+			Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
             Assert.Equal("/", response.Headers.Location.ToString());
         }
     }

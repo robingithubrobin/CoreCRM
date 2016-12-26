@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
+
 
 namespace CoreCRM.IntegrationTest
 {
@@ -10,6 +12,7 @@ namespace CoreCRM.IntegrationTest
     {
         public TestStartup(IHostingEnvironment env) : base(env)
         {
+            
         }
 
         protected override void ConfigureDbContext(IServiceCollection services)
@@ -26,13 +29,22 @@ namespace CoreCRM.IntegrationTest
         }
 
         // method in TestStartup.cs
-        protected override void EnsureDatabaseCreated(ApplicationDbContext dbContext)
+        protected override void EnsureDatabaseCreated(IApplicationBuilder app, ApplicationDbContext dbContext)
         {
             dbContext.Database.OpenConnection(); // see Resource #2 link why we do this
-            //dbContext.Database.EnsureCreated();
 
             // now run the real thing
-            base.EnsureDatabaseCreated(dbContext);
+            base.EnsureDatabaseCreated(app, dbContext);
+
+            // Create table not in migrations
+            dbContext.Database.EnsureCreated();
+
+			DatabaseFactory(app, dbContext);
+		}
+
+        protected virtual void DatabaseFactory(IApplicationBuilder app, ApplicationDbContext dbContext)
+        {
+            // Fill the database in concrete class.
         }
     }
 }

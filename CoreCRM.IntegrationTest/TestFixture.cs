@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -11,7 +12,8 @@ namespace CoreCRM.IntegrationTest
         {
             var builder = new WebHostBuilder()
                 .UseEnvironment("Development")
-                .UseStartup<TStartup>();
+                .UseStartup<TStartup>()
+                .UseContentRoot(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "CoreCRM")));
             Server = new TestServer(builder);
 
             Client = Server.CreateClient();

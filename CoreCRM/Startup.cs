@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -66,6 +64,16 @@ namespace CoreCRM
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            using (var serviceScope = app.ApplicationServices
+                                         .GetRequiredService<IServiceScopeFactory>()
+                                         .CreateScope()) {
+
+                var dbContext = serviceScope.ServiceProvider
+                                            .GetService<ApplicationDbContext>();
+
+                EnsureDatabaseCreated(app, dbContext);
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -82,7 +90,6 @@ namespace CoreCRM
             app.UseIdentity();
 
             // Add external authentication middleware below. To configure them please see https://go.microsoft.com/fwlink/?LinkID=532715
-
             app.UseMvc(routes =>
             {
                 routes.MapRoute(name: "areasRoute",
@@ -93,20 +100,10 @@ namespace CoreCRM
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            using (var serviceScope = app.ApplicationServices
-                                         .GetRequiredService<IServiceScopeFactory>()
-                                         .CreateScope()) {
-
-                var dbContext = serviceScope.ServiceProvider
-                                            .GetService<ApplicationDbContext>();
-
-                EnsureDatabaseCreated(dbContext);
-            }
-
             //Task.Run(() => SeedData.Initialize(app.ApplicationServices, userManager, roleManager));
         }
 
-        protected virtual void EnsureDatabaseCreated(ApplicationDbContext dbContext)
+        protected virtual void EnsureDatabaseCreated(IApplicationBuilder app, ApplicationDbContext dbContext)
         {
             // run Migrations
             dbContext.Database.Migrate();
