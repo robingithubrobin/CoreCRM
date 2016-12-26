@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
 using Xunit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using CoreCRM.Data;
-using CoreCRM.Models;
 
 namespace CoreCRM.IntegrationTest.Controllers
 {
@@ -26,28 +20,7 @@ namespace CoreCRM.IntegrationTest.Controllers
 
         protected override void DatabaseFactory(IApplicationBuilder app, ApplicationDbContext dbContext)
         {
-            using (var serviceScope = app.ApplicationServices
-                                         .GetRequiredService<IServiceScopeFactory>()
-                                         .CreateScope()) {
-
-                var userManager = serviceScope.ServiceProvider
-                                              .GetService<UserManager<ApplicationUser>>();
-                var roleManager = serviceScope.ServiceProvider
-                                              .GetService<RoleManager<IdentityRole>>();
-
-				var user = new ApplicationUser()
-				{
-                    UserName = "admin",
-                    Email= "admin@example.com",
-				};
-
-				Task.Run(async () => {
-					await roleManager.CreateAsync(new IdentityRole("Admin"));
-					await roleManager.CreateAsync(new IdentityRole("Employee"));
-				    await userManager.CreateAsync(user, "123abC_");                    
-                    await userManager.AddToRoleAsync(user, "Admin");
-				}).Wait();
-			}
+            base.DatabaseFactory(app, dbContext);
         }
     }
 
@@ -55,10 +28,10 @@ namespace CoreCRM.IntegrationTest.Controllers
     // https://xunit.github.io/docs/getting-started-dotnet-core.html
     public class AccountControllerTests : AbstractIntegrationTest<AccountControllerTestStartup>
     {
-		public AccountControllerTests(TestFixture<AccountControllerTestStartup> fixture) : base(fixture)
+        public AccountControllerTests(TestFixture<AccountControllerTestStartup> fixture) : base(fixture)
         {
 
-		}
+        }
 
         public override void Dispose()
         {
@@ -89,10 +62,39 @@ namespace CoreCRM.IntegrationTest.Controllers
             // Act
             response = await _client.SendAsync(requestMessage);
 
-			var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync();
 
-			// Assert
-			Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            // Assert
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.Equal("/", response.Headers.Location.ToString());
+        }
+
+        [Fact]
+        public async void Login_WithEmail_RedirectToUri()
+        {
+            // Arrange
+            // Fetch AntiForgeryToken
+            var response = await _client.GetAsync("/Account/Login");
+            response.EnsureSuccessStatusCode();
+
+            // Extract token
+            string antiForgeryToken = await ExtractAntiForgeryToken(response);
+
+            // Fill form
+            var formPostBodyData = new Dictionary<string, string>
+            {
+                {"__RequestVerificationToken", antiForgeryToken}, // Add token
+                {"Account", "admin@example.com"},
+                {"Password", "123abC_"},
+                {"RememberMe", "true"}
+            };
+            var requestMessage = CreateWithCookiesFromResponse("/Account/Login?returnUrl=%2F", formPostBodyData, response);
+
+            // Act
+            response = await _client.SendAsync(requestMessage);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
             Assert.Equal("/", response.Headers.Location.ToString());
         }
     }

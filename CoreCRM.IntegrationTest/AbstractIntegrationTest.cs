@@ -27,41 +27,63 @@ namespace CoreCRM.IntegrationTest
         
         public HttpRequestMessage CreatePostRequest(String path, Dictionary<string, string> formPostBodyData)
         {
-	        var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, path)
-	        {
-		        Content = new FormUrlEncodedContent(ToFormPostData(formPostBodyData))
-	        };
-	        return httpRequestMessage;
-	    }
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, path)
+            {
+                Content = new FormUrlEncodedContent(ToFormPostData(formPostBodyData))
+            };
+            return httpRequestMessage;
+        }
 
-	    public List<KeyValuePair<string, string>> ToFormPostData(Dictionary<string, string> formPostBodyData)
-	    {
-		    List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
-		    formPostBodyData.Keys.ToList().ForEach(key =>
-		    {
-			    result.Add(new KeyValuePair<string, string>(key, formPostBodyData[key]));
-		    });
-		    return result;
-	    }
+        public List<KeyValuePair<string, string>> ToFormPostData(Dictionary<string, string> formPostBodyData)
+        {
+            List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
+            formPostBodyData.Keys.ToList().ForEach(key =>
+            {
+                result.Add(new KeyValuePair<string, string>(key, formPostBodyData[key]));
+            });
+            return result;
+        }
 
-	    public HttpRequestMessage CreateWithCookiesFromResponse(string path, Dictionary<string, string> formPostBodyData, HttpResponseMessage response)
-	    {
-	        var httpRequestMessage = CreatePostRequest(path, formPostBodyData);
-		    return CookiesHelper.CopyCookiesFromResponse(httpRequestMessage, response);
-	    }
+        public HttpRequestMessage CreateWithCookiesFromResponse(string path, Dictionary<string, string> formPostBodyData, HttpResponseMessage response)
+        {
+            var httpRequestMessage = CreatePostRequest(path, formPostBodyData);
+            return CookiesHelper.CopyCookiesFromResponse(httpRequestMessage, response);
+        }
 
-		public string ExtractAntiForgeryToken(string htmlResponseText)
-		{
-			if (htmlResponseText == null) throw new ArgumentNullException("htmlResponseText");
+        public string ExtractAntiForgeryToken(string htmlResponseText)
+        {
+            if (htmlResponseText == null) throw new ArgumentNullException("htmlResponseText");
 
-			Match match = Regex.Match(htmlResponseText, @"\<input name=""__RequestVerificationToken"" type=""hidden"" value=""([^""]+)"" \/\>");
-			return match.Success ? match.Groups[1].Captures[0].Value : null;
-		}
+            Match match = Regex.Match(htmlResponseText, @"\<input name=""__RequestVerificationToken"" type=""hidden"" value=""([^""]+)"" \/\>");
+            return match.Success ? match.Groups[1].Captures[0].Value : null;
+        }
 
-		public async Task<string> ExtractAntiForgeryToken(HttpResponseMessage response)
-		{
-			string responseAsString = await response.Content.ReadAsStringAsync();
-			return await Task.FromResult(ExtractAntiForgeryToken(responseAsString));
-		}
+        public async Task<string> ExtractAntiForgeryToken(HttpResponseMessage response)
+        {
+            string responseAsString = await response.Content.ReadAsStringAsync();
+            return await Task.FromResult(ExtractAntiForgeryToken(responseAsString));
+        }
+
+        public async Task Login()
+        {
+            // Fetch AntiForgeryToken
+            var response = await _client.GetAsync("/Account/Login");
+            response.EnsureSuccessStatusCode();
+
+            // Extract token
+            string antiForgeryToken = await ExtractAntiForgeryToken(response);
+
+            // Fill form
+            var formPostBodyData = new Dictionary<string, string>
+            {
+                {"__RequestVerificationToken", antiForgeryToken}, // Add token
+                {"Account", "admin@example.com"},
+                {"Password", "123abC_"},
+                {"RememberMe", "true"}
+            };
+            var requestMessage = CreateWithCookiesFromResponse("/Account/Login?returnUrl=%2F", formPostBodyData, response);
+
+            response = await _client.SendAsync(requestMessage);
+        }
     }
 }

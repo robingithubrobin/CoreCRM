@@ -4,7 +4,10 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
-
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using CoreCRM.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace CoreCRM.IntegrationTest
 {
@@ -39,12 +42,34 @@ namespace CoreCRM.IntegrationTest
             // Create table not in migrations
             dbContext.Database.EnsureCreated();
 
-			DatabaseFactory(app, dbContext);
-		}
+            DatabaseFactory(app, dbContext);
+        }
 
         protected virtual void DatabaseFactory(IApplicationBuilder app, ApplicationDbContext dbContext)
         {
-            // Fill the database in concrete class.
+            // Create admin user.
+            using (var serviceScope = app.ApplicationServices
+                                         .GetRequiredService<IServiceScopeFactory>()
+                                         .CreateScope()) {
+
+                var userManager = serviceScope.ServiceProvider
+                                              .GetService<UserManager<ApplicationUser>>();
+                var roleManager = serviceScope.ServiceProvider
+                                              .GetService<RoleManager<IdentityRole>>();
+
+                var user = new ApplicationUser() {
+                    UserName = "admin",
+                    Email = "admin@example.com",
+                    PhoneNumber = "18910053803",
+                };
+
+                Task.Run(async () => {
+                    await roleManager.CreateAsync(new IdentityRole("Admin"));
+                    await roleManager.CreateAsync(new IdentityRole("Employee"));
+                    await userManager.CreateAsync(user, "123abC_");
+                    await userManager.AddToRoleAsync(user, "Admin");
+                }).Wait();
+            }
         }
     }
 }
