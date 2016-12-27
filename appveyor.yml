@@ -1,0 +1,63 @@
+# version format
+version: 0.1.{build}
+
+# Build worker image (VM template)
+image: Visual Studio 2015
+
+# environment variables
+environment:
+  nodejs_version: "6.9.1"
+  # Don't report back to the mothership
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+init:
+  - git config --global core.autocrlf true
+  - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+
+# scripts that run after cloning repository
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+
+before_build:
+  - appveyor-retry dotnet restore -v Minimal
+
+build_script:
+  - dotnet build "CoreCRM" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+  - dotnet build "CoreCRM.UnitTest" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+  - dotnet build "CoreCRM.IntegrationTest" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+
+test_script:
+  - dotnet test "CoreCRM.IntegrationTest" -c %CONFIGURATION%
+
+cache:
+  - '%USERPROFILE%\.nuget\packages'
+
+# enable patching of AssemblyInfo.* files
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "0.1.{build}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "{version}"
+
+# build platform, i.e. x86, x64, Any CPU. This setting is optional.
+platform: Any CPU
+
+# build Configuration, i.e. Debug, Release, etc.
+configuration:
+  - Debug
+  - Release
+
+# to disable deployment
+deploy: off
+
+notifications:
+
+  # Email
+  - provider: Email
+    to:
+      - holmescn@163.com
+    subject: 'Build {{status}}'                  # optional
+    message: "{{message}}, {{commitId}}, ..."    # optional
+    on_build_status_changed: true

@@ -9,6 +9,6 @@ A Customer Relationship Management system implemented with .NET Core and ASP.NET
 
 | Build server| Platform       | Status |
 |-------------|----------------|--------|
-| AppVeyor    | Windows        |        |
+| AppVeyor    | Windows        |![AppVeyor](https://ci.appveyor.com/api/projects/status/github/holmescn/CoreCRM)|
 | Travis      | Linux/macOS    |        |
 
