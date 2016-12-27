@@ -1,0 +1,10 @@
+language: csharp
+solution: CoreCRM.sln
+mono: none
+dotnet: 1.0.0-preview2-003121
+install:
+  - nuget restore CoreCRM.sln
+  - nuget install xunit.runners -Version 1.9.2 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release CoreCRM.sln
+  - dotnet ./testrunner/xunit.runners.1.9.2/tools/xunit.console.clr4.exe ./CoreCRM.IntegrationTest/bin/Release/CoreCRM.IntegrationTest.dll
