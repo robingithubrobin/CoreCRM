@@ -20,6 +20,7 @@
         }
     },
     "runtimes": {
+        "win8-x64": {},
         "win10-x64": {}
     },
     "buildOptions": {
