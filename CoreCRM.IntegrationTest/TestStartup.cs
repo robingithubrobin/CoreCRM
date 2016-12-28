@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using CoreCRM.Models;
 using Microsoft.AspNetCore.Identity;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace CoreCRM.IntegrationTest
 {
@@ -15,7 +17,18 @@ namespace CoreCRM.IntegrationTest
     {
         public TestStartup(IHostingEnvironment env) : base(env)
         {
+            string basePath = Directory.GetCurrentDirectory();
+            if (!Directory.GetCurrentDirectory().EndsWith("IntegrationTest")) {
+                basePath = Path.Combine(basePath, "CoreCRM.IntegrationTest");
+            }
+
+            var builder = new ConfigurationBuilder();
+            builder.SetBasePath(basePath)
+                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                   .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
             
+            builder.AddEnvironmentVariables();
+            Configuration = builder.Build();
         }
 
         protected override void ConfigureDbContext(IServiceCollection services)
