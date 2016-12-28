@@ -1,39 +1,20 @@
-# version format
 version: 0.1.{build}
-
-# Build worker image (VM template)
-image: Visual Studio 2015
-
 # environment variables
 environment:
-  nodejs_version: "6.9.1"
   # Don't report back to the mothership
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
-
-init:
-  - git config --global core.autocrlf true
-  - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
-
-# scripts that run after cloning repository
-install:
-  # Get the latest stable version of Node.js or io.js
-  - ps: Install-Product node $env:nodejs_version
-
-before_build:
-  - appveyor-retry dotnet restore -v Minimal
-
-test_script:
-  - dotnet test "CoreCRM.IntegrationTest" -c %CONFIGURATION%
-
-cache:
-  - '%USERPROFILE%\.nuget\packages'
-
-# build platform, i.e. x86, x64, Any CPU. This setting is optional.
+configuration: Debug
 platform: Any CPU
-
-# build Configuration, i.e. Debug, Release, etc.
-configuration:
-  - Debug
-
-# to disable deployment
+init:
+- cmd: git config --global core.autocrlf true
+before_build:
+- cmd: appveyor-retry dotnet restore -v Minimal
+- cmd: nuget restore
+build:
+  project: CoreCRM.sln
+  verbosity: minimal
+test_script:
+- cmd: dotnet test CoreCRM.IntegrationTest
+cache:
+- '%USERPROFILE%\.nuget\packages'
 deploy: off
