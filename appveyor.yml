@@ -9,7 +9,6 @@ init:
 - cmd: git config --global core.autocrlf true
 before_build:
 - cmd: appveyor-retry dotnet restore -v Minimal
-- cmd: nuget restore
 build:
   project: CoreCRM.sln
   verbosity: minimal
