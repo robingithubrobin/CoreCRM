@@ -10,10 +10,20 @@ namespace CoreCRM.IntegrationTest
     {
         public TestFixture()
         {
+            string contentPath, basePath;
+            if (Directory.GetCurrentDirectory().EndsWith("IntegrationTest")) {
+                contentPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "CoreCRM"));
+                basePath = Directory.GetCurrentDirectory();
+            } else {
+                contentPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "CoreCRM"));
+                basePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "CoreCRM.IntegrationTest"));
+            }
+
             var builder = new WebHostBuilder()
                 .UseEnvironment("Development")
+                .UseSetting("BasePath", basePath)
                 .UseStartup<TStartup>()
-                .UseContentRoot(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "CoreCRM")));
+                .UseContentRoot(contentPath);
             Server = new TestServer(builder);
 
             Client = Server.CreateClient();
