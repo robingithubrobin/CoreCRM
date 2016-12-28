@@ -22,24 +22,11 @@ install:
 before_build:
   - appveyor-retry dotnet restore -v Minimal
 
-build_script:
-  - dotnet build "CoreCRM" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
-  - dotnet build "CoreCRM.UnitTest" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
-  - dotnet build "CoreCRM.IntegrationTest" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
-
 test_script:
   - dotnet test "CoreCRM.IntegrationTest" -c %CONFIGURATION%
 
 cache:
   - '%USERPROFILE%\.nuget\packages'
-
-# enable patching of AssemblyInfo.* files
-assembly_info:
-  patch: true
-  file: AssemblyInfo.*
-  assembly_version: "0.1.{build}"
-  assembly_file_version: "{version}"
-  assembly_informational_version: "{version}"
 
 # build platform, i.e. x86, x64, Any CPU. This setting is optional.
 platform: Any CPU
@@ -47,17 +34,6 @@ platform: Any CPU
 # build Configuration, i.e. Debug, Release, etc.
 configuration:
   - Debug
-  - Release
 
 # to disable deployment
 deploy: off
-
-notifications:
-
-  # Email
-  - provider: Email
-    to:
-      - holmescn@163.com
-    subject: 'Build {{status}}'                  # optional
-    message: "{{message}}, {{commitId}}, ..."    # optional
-    on_build_status_changed: true
